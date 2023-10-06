@@ -19,10 +19,26 @@ const list = [
   },
 ];
 
+const Header = ({title}) => { //componets are capitalized
+
+  return(
+    <h1>{title}</h1>
+  
+  )
+}
+
+const Link = ({url, title}) => { //componets are capitalized
+
+  return(
+    <a href={url}>{title}</a>
+  
+  )
+}
+
 function App() {
   return (
     <div>
-      <h1>My Stories</h1>
+      <Header title = "New Story"/>
 
       <label htmlFor="search">Search: </label>
       <input id="search" type="text" />
@@ -34,7 +50,7 @@ function App() {
           return ( 
             <li key = {item.objectID}>
               <span> 
-                <a href={item.url}>{item.title}</a>
+                <Link title={item.title}  url={item.url} />
               </span>
               <span> {item.author} </span>
               <span>{item.num_comments} </span>
