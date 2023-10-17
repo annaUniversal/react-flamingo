@@ -30,51 +30,14 @@ const Item = (props) => {
   );
 };
 
-// function List(){
-//   return (
-//     <ul>
-//       {list.map(function (item) {
-//         return (
-//           <li key = {item.objectID}>
-//             <span>
-//               <a href={item.url}>{item.title}</a>
-//             </span>
-//             <span> {item.author} </span>
-//             <span>{item.num_comments} </span>
-//             <span>{item.points}</span>
-//           </li>
-//         )
-//       })}
-//     </ul>
-//   );
-// }
-
-// function List(){
-//   return (
-//     <ul>
-//       {list.map(function (item) {
-//         return (
-//           <li key = {item.objectID}>
-//             <span>
-//               <a href={item.url}>{item.title}</a>
-//             </span>
-//             <span> {item.author} </span>
-//             <span>{item.num_comments} </span>
-//             <span>{item.points}</span>
-//           </li>
-//         )
-//       })}
-//     </ul>
-//   );
-// }
-
 function Search() {
+  const [searchTerm, setSearchTerm] = React.useState('');
+  
   const handleChange = (event) => {
-    console.log(event);
-  };
 
-  const handleMouseOver = (event) => {
-    console.log(event);
+    console.log(searchTerm);
+    setSearchTerm(event.target.value);
+    console.log(searchTerm);
   };
 
   return (
@@ -84,8 +47,11 @@ function Search() {
         id="search"
         type="text"
         onChange={handleChange}
-        onMouseOver={handleMouseOver}
       />
+
+      <p>
+    Search for <strong>{searchTerm}</strong>
+      </p>
     </div>
   );
 }
