@@ -19,6 +19,19 @@ const initialStories = [
   },
 ];
 
+const storiesReducer = (state, action) => {
+  switch (action.type){
+    case 'SET_STORIES':
+      return action.payload;
+    case 'REMOVE_STORY':
+      return state.filter(
+        story => action.payload.objectID !== story.objectID
+      );
+    default:
+      throw new Error();
+  }
+}
+
 function App() {
   const javaScriptLibraries = [
     {
@@ -39,6 +52,11 @@ function App() {
     },
   ];
 
+  const getAsyncStories = () =>
+    new Promise((resolve) =>
+      setTimeout(() => resolve({ data: { stories: initialStories } }), 2000)
+    );
+
   const useSemiPersistentState = (key, initialState) => {
     const [value, setValue] = React.useState(
       localStorage.getItem(key) || initialState
@@ -51,16 +69,38 @@ function App() {
     return [value, setValue];
   };
 
+  //states
   const [searchTerm, setSearchTerm] = useSemiPersistentState("search", "React");
+  const [stories, dispatchStories] = React.useReducer(storiesReducer, []);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isError, setIsError] = React.useState(false);
 
-  const [stories, setStories] = React.useState(initialStories);
+  React.useEffect(() => {
+    setIsLoading(true);
+
+    getAsyncStories()
+      .then((result) => {
+        //setStories(result.data.stories);
+        dispatchStories({
+          type: 'SET_STORIES',
+          payload: result.data.stories,
+        })
+        setIsLoading(false);
+      })
+      .catch(() => setIsError(true));
+  }, []);
 
   const handleRemoveStories = (item) => {
     const newStories = stories.filter(
       (story) => item.objectID !== story.objectID
     );
 
-    setStories(newStories);
+    //setStories(newStories);
+    dispatchStories ({
+      type: 'REMOVE_STORY',
+      payload: item,
+    })
+
   };
 
   const handleSearch = (event) => {
@@ -90,8 +130,20 @@ function App() {
         list={searchedStories}
         title="React Ecosystem"
         onRemoveItem={handleRemoveStories}
+      />
+      
+
+      {isError && <p>Something went wrong ...</p>}
+      {isLoading ? (
+        <p>Loading ...</p>
+      ) : (
+        <List
+          list={searchedStories}
+          // title="React Ecosystem"
+          onRemoveItem={handleRemoveStories}
         />
-        <p>Hi</p>
+      )}
+
       <List list={javaScriptLibraries} title="JS Libraries" />
     </div>
   );
@@ -149,40 +201,10 @@ function Search(props) {
   );
 }
 
-/*let List = (props) => {
-  return (
-    <div>
-      <h2>{props.title}</h2>
-      <ul>
-        {props.list.map(function (item) {
-          return <Item item={item} />;
-        })}
-      </ul>
-    </div>
-  );
-};*/
-
 const List = ({ list, onRemoveItem }) =>
   list.map((item) => (
     <Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />
   ));
-
-/*const Item = (props) => {
-  // or use const Item = ({item}) =>
-  //const item = props.item //if we don't want to use .
-  //const {item} = props - another way
-
-  return (
-    <li key={props.item.objectID}>
-      <span>
-        <a href={props.item.url}>{props.item.title}</a>
-      </span>
-      <span> {props.item.author} </span>
-      <span>{props.item.num_comments} </span>
-      <span>{props.item.points}</span>
-    </li>
-  );
-};*/
 
 const Item = ({ item, onRemoveItem }) => (
   <div>
