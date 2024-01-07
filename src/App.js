@@ -57,7 +57,7 @@ function App() {
 
   const handleRemoveStories = (item) => {
     const newStories = stories.filter(
-      story => item.objectID !== story.objectID
+      (story) => item.objectID !== story.objectID
     );
 
     setStories(newStories);
@@ -90,7 +90,8 @@ function App() {
         list={searchedStories}
         title="React Ecosystem"
         onRemoveItem={handleRemoveStories}
-      />
+        />
+        <p>Hi</p>
       <List list={javaScriptLibraries} title="JS Libraries" />
     </div>
   );
@@ -162,9 +163,9 @@ function Search(props) {
 };*/
 
 const List = ({ list, onRemoveItem }) =>
-  list.map((item) => {
-    <Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />;
-  });
+  list.map((item) => (
+    <Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />
+  ));
 
 /*const Item = (props) => {
   // or use const Item = ({item}) =>
@@ -183,21 +184,24 @@ const List = ({ list, onRemoveItem }) =>
   );
 };*/
 
-const Item = ({item}) => {
-  const Item = ({item, onRemoveItem}) => (
-    <div>
-      <span>
-        <a href={item.url}>{item.title}</a>
-      </span>
-      <span> {item.author} </span>
-      <span>{item.num_comments} </span>
-      <span>{item.points}</span>
-      <span>
-        <button type="button" onClick={() => onRemoveItem(item)}> Remove</button>
-      </span>
-    </div>
-  );
-}
+const Item = ({ item, onRemoveItem }) => (
+  <div>
+    {console.log("Hi")}
+    {console.log(item.url)}
+
+    <span>
+      <a href={item.url}>{item.title}</a>
+    </span>
+    <span> {item.author} </span>
+    <span>{item.num_comments} </span>
+    <span>{item.points}</span>
+    <span>
+      <button type="button" onClick={() => onRemoveItem(item)}>
+        {" "}
+        Remove
+      </button>
+    </span>
+  </div>
+);
 
 export default App;
-
