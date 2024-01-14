@@ -20,17 +20,37 @@ const initialStories = [
 ];
 
 const storiesReducer = (state, action) => {
-  switch (action.type){
-    case 'SET_STORIES':
-      return action.payload;
-    case 'REMOVE_STORY':
-      return state.filter(
-        story => action.payload.objectID !== story.objectID
-      );
+  switch (action.type) {
+    case "STORIES_FETCH_INIT":
+      return {
+        ...state,
+        isLoading: true,
+        isError: false,
+      };
+    case "STORIES_FETCH_SUCCESS":
+      return {
+        ...state,
+        isLoading: false,
+        isError: false,
+        data: action.payload,
+      };
+    case "STORIES_FETCH_FAILURE":
+      return {
+        ...state,
+        isLoading: false,
+        isError: true,
+      };
+    case "REMOVE_STORY":
+      return {
+        ...state,
+        data: state.data.filter(
+          (story) => action.payload.objectID !== story.objectID
+        ),
+      };
     default:
       throw new Error();
   }
-}
+};
 
 function App() {
   const javaScriptLibraries = [
@@ -71,36 +91,42 @@ function App() {
 
   //states
   const [searchTerm, setSearchTerm] = useSemiPersistentState("search", "React");
-  const [stories, dispatchStories] = React.useReducer(storiesReducer, []);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [isError, setIsError] = React.useState(false);
+  const [stories, dispatchStories] = React.useReducer(storiesReducer, {
+    data: [],
+    isLoading: false,
+    isError: false,
+  });
+  // const [isLoading, setIsLoading] = React.useState(false);
+  // const [isError, setIsError] = React.useState(false);
 
   React.useEffect(() => {
-    setIsLoading(true);
+    // setIsLoading(true);
+    dispatchStories({ type: "STORIES_FETCH_INIT" });
 
     getAsyncStories()
       .then((result) => {
         //setStories(result.data.stories);
         dispatchStories({
-          type: 'SET_STORIES',
+          // type: "SET_STORIES",
+          type: "STORIES_FETCH_SUCCESS",
           payload: result.data.stories,
-        })
-        setIsLoading(false);
+        });
+        //setIsLoading(false);
       })
-      .catch(() => setIsError(true));
+      // .catch(() => setIsError(true));
+      .catch(() => dispatchStories({ type: "STORIES_FETCH_FAILUER" }));
   }, []);
 
   const handleRemoveStories = (item) => {
-    const newStories = stories.filter(
+    const newStories = stories.data.filter(
       (story) => item.objectID !== story.objectID
     );
 
     //setStories(newStories);
-    dispatchStories ({
-      type: 'REMOVE_STORY',
+    dispatchStories({
+      type: "REMOVE_STORY",
       payload: item,
-    })
-
+    });
   };
 
   const handleSearch = (event) => {
@@ -108,7 +134,10 @@ function App() {
     setSearchTerm(event.target.value);
   };
 
-  const searchedStories = stories.filter((story) =>
+  // const searchedStories = stories.filter((story) =>
+  //   story.title.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
+  const searchedStories = stories.data.filter((story) =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -131,10 +160,10 @@ function App() {
         title="React Ecosystem"
         onRemoveItem={handleRemoveStories}
       />
-      
 
-      {isError && <p>Something went wrong ...</p>}
-      {isLoading ? (
+      {/* {isError && <p>Something went wrong ...</p>} */}
+      {stories.isError && <p>Something went wrong ...</p>}
+      {stories.isLoading ? (
         <p>Loading ...</p>
       ) : (
         <List
@@ -143,7 +172,7 @@ function App() {
           onRemoveItem={handleRemoveStories}
         />
       )}
-
+    <p>Another list </p>
       <List list={javaScriptLibraries} title="JS Libraries" />
     </div>
   );
